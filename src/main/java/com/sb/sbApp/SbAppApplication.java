@@ -5,23 +5,27 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
+import org.jsoup.Jsoup;
+import org.jsoup.helper.W3CDom;
+import org.jsoup.nodes.Document;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import java.awt.*;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-import static org.springframework.http.MediaType.APPLICATION_PDF;
+import static com.sb.sbApp.Constant.HTML;
+
 
 @SpringBootApplication
 @RestController
@@ -34,7 +38,7 @@ public class SbAppApplication {
 	}
 	@CrossOrigin(origins = "*")
 	@GetMapping(value = "/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-	public ResponseEntity<byte[]> get(){
+	public ResponseEntity<byte[]> pdf(){
 		byte[] pdfBytes;
 		try (final PDDocument doc = new PDDocument()){
 
@@ -56,6 +60,28 @@ public class SbAppApplication {
 
 		} catch (IOException e){
 			System.err.println("Exception while trying to create pdf document - " + e);
+		}
+		return null;
+	}
+	@CrossOrigin(origins = "*")
+	@GetMapping(value = "/htmlpdf", produces = MediaType.APPLICATION_PDF_VALUE)
+	public ResponseEntity<byte[]> htmlpdf() throws MalformedURLException {
+
+		String outputFile = "generated.pdf";
+		ITextRenderer renderer = new ITextRenderer();
+		final Document jsoupDoc = Jsoup.parseBodyFragment(HTML);
+		W3CDom w3cDom = new W3CDom();
+		org.w3c.dom.Document w3cDoc = w3cDom.fromJsoup(jsoupDoc);
+		renderer.setDocument(w3cDoc);
+		renderer.layout();
+
+		try (OutputStream os = Files.newOutputStream(Paths.get(outputFile))) {
+			renderer.createPDF(os);
+			byte[] pdfBytes;
+
+
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 		return null;
 	}
