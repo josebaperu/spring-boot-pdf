@@ -77,13 +77,16 @@ public class SbAppApplication {
 
 		try (OutputStream os = Files.newOutputStream(Paths.get(outputFile))) {
 			renderer.createPDF(os);
-			byte[] pdfBytes;
-
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			byte[] bytes = new byte[8];
+			bos.write(bytes);
+			bos.writeTo(os);
+			byte[] pdfBytes = bos.toByteArray();
+			return new ResponseEntity<>(pdfBytes, null, HttpStatus.OK);
 
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		return null;
 	}
 
 }
