@@ -19,8 +19,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.xhtmlrenderer.pdf.ITextRenderer;
-
+import java.util.UUID;
 import java.io.*;
+
 import static com.sb.sbApp.Constant.HTML;
 
 
@@ -67,7 +68,7 @@ public class SbAppApplication {
     @CrossOrigin(origins = "*")
     @GetMapping(value = "/htmlpdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> htmlpdf() throws IOException {
-        String outputFile = "generated.pdf";
+        final String outputFile = UUID.randomUUID().toString().replace("-", "").concat(".pdf");
         ITextRenderer renderer = new ITextRenderer();
         final Document jsoupDoc = Jsoup.parseBodyFragment(HTML);
         W3CDom w3cDom = new W3CDom();
@@ -79,6 +80,10 @@ public class SbAppApplication {
         BufferedInputStream bufferedInputStream = new BufferedInputStream(
                 new FileInputStream(outputFile));
         byte[] bytes = IOUtils.toByteArray(bufferedInputStream);
+        File file = new File(outputFile);
+        if(file.exists()){
+            file.delete();
+        }
         return new ResponseEntity<>(bytes, null, HttpStatus.OK);
 
     }
