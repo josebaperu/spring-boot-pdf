@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,8 +30,10 @@ public class SbAppApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(SbAppApplication.class, args);
+
 	}
-	@GetMapping(value = "/hello", produces = MediaType.APPLICATION_PDF_VALUE)
+	@CrossOrigin(origins = "*")
+	@GetMapping(value = "/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
 	public ResponseEntity<byte[]> get(){
 		byte[] pdfBytes;
 		try (final PDDocument doc = new PDDocument()){
